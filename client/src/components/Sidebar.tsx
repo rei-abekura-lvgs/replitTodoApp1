@@ -24,7 +24,7 @@ export default function Sidebar() {
           {/* Sidebar */}
           <div className="fixed inset-y-0 left-0 flex flex-col w-full max-w-xs bg-white shadow-xl">
             <div className="p-4 border-b border-slate-100">
-              <div className="flex justify-end">
+              <div className="flex justify-start">
                 <button
                   className="text-slate-500 hover:text-slate-700"
                   onClick={() => setSidebarOpen(false)}
