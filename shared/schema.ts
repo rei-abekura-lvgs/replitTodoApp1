@@ -58,6 +58,7 @@ export type TaskFilters = {
   priority?: number;
   categoryId?: number;
   searchTerm?: string;
+  dueDateToday?: boolean;
 };
 
 export type SortOption = 'dueDate' | 'priority' | 'title' | 'createdAt';
