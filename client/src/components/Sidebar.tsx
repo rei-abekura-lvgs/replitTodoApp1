@@ -24,10 +24,7 @@ export default function Sidebar() {
           {/* Sidebar */}
           <div className="fixed inset-y-0 left-0 flex flex-col w-full max-w-xs bg-white shadow-xl">
             <div className="p-4 flex items-center justify-between border-b border-slate-100">
-              <h1 className="text-xl font-bold text-primary-600 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg>
-                TODO App
-              </h1>
+              <h2 className="text-lg font-semibold text-slate-700">メニュー</h2>
               <button
                 className="text-slate-500 hover:text-slate-700"
                 onClick={() => setSidebarOpen(false)}
@@ -36,11 +33,31 @@ export default function Sidebar() {
               </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto">
-              <SidebarContent onAddCategory={() => {
-                setCategoryModalOpen(true);
-                setSidebarOpen(false);
-              }} />
+            <div className="flex-1 overflow-y-auto p-4">
+              {/* Categories section */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-sm font-medium text-slate-500 uppercase tracking-wider">カテゴリ</h2>
+                  <button
+                    onClick={() => {
+                      setCategoryModalOpen(true);
+                      setSidebarOpen(false);
+                    }}
+                    className="text-primary-600 hover:text-primary-800 text-sm font-medium"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    追加
+                  </button>
+                </div>
+                
+                <CategoryList />
+              </div>
+              
+              {/* Filters section */}
+              <div className="border-t border-slate-100 pt-4">
+                <h2 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-4">フィルター</h2>
+                <FilterList />
+              </div>
             </div>
           </div>
         </div>
@@ -57,10 +74,7 @@ function SidebarContent({ onAddCategory }: SidebarContentProps) {
   return (
     <>
       <div className="p-4 flex items-center justify-between border-b border-slate-100">
-        <h1 className="text-xl font-bold text-primary-600 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg>
-          TODO App
-        </h1>
+        <h2 className="text-lg font-semibold text-slate-700">メニュー</h2>
       </div>
       
       {/* Categories section */}
