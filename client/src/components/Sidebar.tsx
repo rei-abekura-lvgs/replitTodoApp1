@@ -25,14 +25,14 @@ export default function Sidebar() {
           <div className="fixed inset-y-0 left-0 flex flex-col w-full max-w-xs bg-white shadow-xl">
             <div className="p-4 flex items-center justify-between border-b border-slate-100">
               <h1 className="text-xl font-bold text-primary-600 flex items-center">
-                <span className="material-icons mr-2">checklist</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg>
                 TODO App
               </h1>
               <button
                 className="text-slate-500 hover:text-slate-700"
                 onClick={() => setSidebarOpen(false)}
               >
-                <span className="material-icons">close</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
             
@@ -58,7 +58,7 @@ function SidebarContent({ onAddCategory }: SidebarContentProps) {
     <>
       <div className="p-4 flex items-center justify-between border-b border-slate-100">
         <h1 className="text-xl font-bold text-primary-600 flex items-center">
-          <span className="material-icons mr-2">checklist</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg>
           TODO App
         </h1>
       </div>
@@ -71,7 +71,7 @@ function SidebarContent({ onAddCategory }: SidebarContentProps) {
             onClick={onAddCategory}
             className="text-primary-600 hover:text-primary-800 text-sm font-medium"
           >
-            <span className="material-icons text-sm">add</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             追加
           </button>
         </div>

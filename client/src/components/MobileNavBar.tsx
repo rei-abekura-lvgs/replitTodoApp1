@@ -22,8 +22,9 @@ export default function MobileNavBar({ onAddTask }: MobileNavBarProps) {
         <button 
           className="bg-primary-600 text-white rounded-full p-3 shadow hover:bg-primary-700"
           onClick={onAddTask}
+          aria-label="タスクを追加"
         >
-          <span className="material-icons">add</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
       </div>
       <button className="py-3 px-5 text-slate-500 hover:text-slate-700">
