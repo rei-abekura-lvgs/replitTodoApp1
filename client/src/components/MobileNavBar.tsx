@@ -20,9 +20,14 @@ export default function MobileNavBar({ onAddTask }: MobileNavBarProps) {
       </button>
       <div className="py-1 flex items-center justify-center">
         <button 
-          className="bg-primary-600 text-white rounded-full p-3 shadow hover:bg-primary-700"
+          className="bg-blue-600 text-white rounded-full p-3 shadow hover:bg-blue-700"
           onClick={onAddTask}
           aria-label="タスクを追加"
+          style={{
+            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+            transform: 'translateY(-10px)'
+          }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
