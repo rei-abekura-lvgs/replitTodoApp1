@@ -1,0 +1,71 @@
+type Task {
+  id: ID!
+  title: String!
+  description: String
+  isCompleted: Boolean!
+  dueDate: AWSDateTime
+  priority: Int
+  categoryId: ID
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Category {
+  id: ID!
+  name: String!
+  color: String!
+  taskCount: Int
+}
+
+type TasksResponse {
+  items: [Task!]!
+}
+
+type CategoriesResponse {
+  items: [Category!]!
+}
+
+input TaskInput {
+  title: String!
+  description: String
+  isCompleted: Boolean
+  dueDate: AWSDateTime
+  priority: Int
+  categoryId: ID
+}
+
+input CategoryInput {
+  name: String!
+  color: String!
+}
+
+input TaskFilterInput {
+  isCompleted: Boolean
+  priority: Int
+  categoryId: ID
+  searchTerm: String
+  dueDateToday: Boolean
+}
+
+type Query {
+  getTasks(filters: TaskFilterInput, sortBy: String): TasksResponse!
+  getTask(id: ID!): Task
+  getCategories: CategoriesResponse!
+  getCategory(id: ID!): Category
+  getTaskCountByCategory(categoryId: ID!): Int!
+}
+
+type Mutation {
+  createTask(input: TaskInput!): Task!
+  updateTask(id: ID!, input: TaskInput!): Task
+  deleteTask(id: ID!): Boolean
+  toggleTaskCompletion(id: ID!, isCompleted: Boolean!): Task
+  createCategory(input: CategoryInput!): Category!
+  updateCategory(id: ID!, input: CategoryInput!): Category
+  deleteCategory(id: ID!): Boolean
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
