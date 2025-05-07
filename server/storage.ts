@@ -1,0 +1,248 @@
+import { InsertCategory, Category, InsertTask, Task, TaskFilters, SortOption } from "@shared/schema";
+
+// ストレージインターフェース
+export interface IStorage {
+  // カテゴリ操作
+  getAllCategories(): Promise<Category[]>;
+  getCategoryById(id: number): Promise<Category | undefined>;
+  createCategory(category: InsertCategory): Promise<Category>;
+  updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined>;
+  deleteCategory(id: number): Promise<boolean>;
+  
+  // タスク操作
+  getAllTasks(filters?: TaskFilters, sortBy?: SortOption): Promise<Task[]>;
+  getTaskById(id: number): Promise<Task | undefined>;
+  createTask(task: InsertTask): Promise<Task>;
+  updateTask(id: number, task: Partial<InsertTask>): Promise<Task | undefined>;
+  deleteTask(id: number): Promise<boolean>;
+  getTaskCountByCategory(categoryId: number): Promise<number>;
+}
+
+// メモリストレージ実装
+export class MemStorage implements IStorage {
+  private categories: Map<number, Category>;
+  private tasks: Map<number, Task>;
+  private categoryIdCounter: number;
+  private taskIdCounter: number;
+
+  constructor() {
+    this.categories = new Map();
+    this.tasks = new Map();
+    this.categoryIdCounter = 1;
+    this.taskIdCounter = 1;
+    
+    // デフォルトカテゴリの追加
+    this.initializeDefaultCategories();
+    // サンプルタスクの追加
+    this.initializeSampleTasks();
+  }
+
+  // カテゴリ関連メソッド
+  async getAllCategories(): Promise<Category[]> {
+    return Array.from(this.categories.values());
+  }
+
+  async getCategoryById(id: number): Promise<Category | undefined> {
+    return this.categories.get(id);
+  }
+
+  async createCategory(categoryData: InsertCategory): Promise<Category> {
+    const id = this.categoryIdCounter++;
+    const category: Category = { id, ...categoryData };
+    this.categories.set(id, category);
+    return category;
+  }
+
+  async updateCategory(id: number, categoryData: Partial<InsertCategory>): Promise<Category | undefined> {
+    const category = this.categories.get(id);
+    if (!category) return undefined;
+
+    const updatedCategory = { ...category, ...categoryData };
+    this.categories.set(id, updatedCategory);
+    return updatedCategory;
+  }
+
+  async deleteCategory(id: number): Promise<boolean> {
+    if (!this.categories.has(id)) return false;
+    
+    // カテゴリに属するタスクのカテゴリIDをnullに設定
+    const tasks = Array.from(this.tasks.values()).filter(task => task.categoryId === id);
+    tasks.forEach(task => {
+      const updatedTask = { ...task, categoryId: null };
+      this.tasks.set(task.id, updatedTask);
+    });
+    
+    return this.categories.delete(id);
+  }
+
+  // タスク関連メソッド
+  async getAllTasks(filters?: TaskFilters, sortBy: SortOption = 'createdAt'): Promise<Task[]> {
+    let filteredTasks = Array.from(this.tasks.values());
+    
+    // フィルタリング
+    if (filters) {
+      if (filters.isCompleted !== undefined) {
+        filteredTasks = filteredTasks.filter(task => task.isCompleted === filters.isCompleted);
+      }
+      
+      if (filters.priority !== undefined) {
+        filteredTasks = filteredTasks.filter(task => task.priority === filters.priority);
+      }
+      
+      if (filters.categoryId !== undefined) {
+        filteredTasks = filteredTasks.filter(task => task.categoryId === filters.categoryId);
+      }
+      
+      if (filters.searchTerm) {
+        const searchLower = filters.searchTerm.toLowerCase();
+        filteredTasks = filteredTasks.filter(task => 
+          task.title.toLowerCase().includes(searchLower) || 
+          (task.description && task.description.toLowerCase().includes(searchLower))
+        );
+      }
+    }
+    
+    // ソート
+    switch (sortBy) {
+      case 'dueDate':
+        filteredTasks.sort((a, b) => {
+          if (!a.dueDate) return 1;
+          if (!b.dueDate) return -1;
+          return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+        });
+        break;
+      case 'priority':
+        filteredTasks.sort((a, b) => b.priority - a.priority);
+        break;
+      case 'title':
+        filteredTasks.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case 'createdAt':
+      default:
+        filteredTasks.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        break;
+    }
+    
+    return filteredTasks;
+  }
+
+  async getTaskById(id: number): Promise<Task | undefined> {
+    return this.tasks.get(id);
+  }
+
+  async createTask(taskData: InsertTask): Promise<Task> {
+    const id = this.taskIdCounter++;
+    const now = new Date();
+    const task: Task = {
+      id,
+      ...taskData,
+      createdAt: now,
+      updatedAt: now
+    };
+    this.tasks.set(id, task);
+    return task;
+  }
+
+  async updateTask(id: number, taskData: Partial<InsertTask>): Promise<Task | undefined> {
+    const task = this.tasks.get(id);
+    if (!task) return undefined;
+
+    const updatedTask = { 
+      ...task, 
+      ...taskData,
+      updatedAt: new Date()
+    };
+    this.tasks.set(id, updatedTask);
+    return updatedTask;
+  }
+
+  async deleteTask(id: number): Promise<boolean> {
+    return this.tasks.delete(id);
+  }
+
+  async getTaskCountByCategory(categoryId: number): Promise<number> {
+    return Array.from(this.tasks.values()).filter(task => task.categoryId === categoryId).length;
+  }
+
+  // 初期データ設定
+  private initializeDefaultCategories() {
+    const defaultCategories: InsertCategory[] = [
+      { name: '仕事', color: 'blue' },
+      { name: '個人', color: 'green' },
+      { name: '買い物', color: 'amber' },
+      { name: '学習', color: 'purple' }
+    ];
+    
+    defaultCategories.forEach(category => {
+      this.createCategory(category);
+    });
+  }
+
+  private initializeSampleTasks() {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const nextWeek = new Date(now);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    
+    const sampleTasks: InsertTask[] = [
+      {
+        title: 'プレゼン資料作成',
+        description: 'クライアントミーティング用のプレゼンテーション資料を作成する',
+        isCompleted: false,
+        dueDate: tomorrow,
+        priority: 3, // 高
+        categoryId: 1 // 仕事
+      },
+      {
+        title: '買い物リスト',
+        description: '夕食の材料を購入する：野菜、肉、調味料',
+        isCompleted: false,
+        dueDate: now,
+        priority: 2, // 中
+        categoryId: 3 // 買い物
+      },
+      {
+        title: '読書',
+        description: '新しい本を30ページ読む',
+        isCompleted: false,
+        dueDate: nextWeek,
+        priority: 1, // 低
+        categoryId: 2 // 個人
+      },
+      {
+        title: 'メール返信',
+        description: '重要な顧客からのメールに返信する',
+        isCompleted: true,
+        dueDate: now,
+        priority: 3, // 高
+        categoryId: 1 // 仕事
+      },
+      {
+        title: 'プログラミング学習',
+        description: 'React.jsのチュートリアルを完了させる',
+        isCompleted: false,
+        dueDate: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000), // 3日後
+        priority: 2, // 中
+        categoryId: 4 // 学習
+      },
+      {
+        title: '請求書送付',
+        description: '先月の作業分の請求書を顧客に送付する',
+        isCompleted: false,
+        dueDate: now,
+        priority: 3, // 高
+        categoryId: 1 // 仕事
+      }
+    ];
+    
+    sampleTasks.forEach(task => {
+      this.createTask(task);
+    });
+  }
+}
+
+export const storage = new MemStorage();
