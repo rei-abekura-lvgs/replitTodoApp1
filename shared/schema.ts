@@ -36,10 +36,17 @@ export const insertUserSchema = createInsertSchema(users).pick({
 });
 
 export const insertCategorySchema = createInsertSchema(categories);
+// タスク挿入スキーマ
 export const insertTaskSchema = createInsertSchema(tasks).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).transform((data) => {
+  // dueDateがstring型で送信された場合はDate型に変換
+  if (typeof data.dueDate === 'string' && data.dueDate) {
+    data.dueDate = new Date(data.dueDate);
+  }
+  return data;
 });
 
 // タイプ定義

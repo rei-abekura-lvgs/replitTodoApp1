@@ -107,6 +107,11 @@ export default function TaskModal() {
         } else {
           dueDate = new Date(`${data.dueDate}T00:00:00`);
         }
+        
+        // 日付が有効かチェック
+        if (isNaN(dueDate.getTime())) {
+          throw new Error("無効な日付または時間の形式です");
+        }
       }
       
       // カテゴリIDの処理
@@ -116,10 +121,14 @@ export default function TaskModal() {
         title: data.title,
         description: data.description || "",
         isCompleted: selectedTask ? selectedTask.isCompleted : false,
-        dueDate,
+        // タイムゾーンを修正するために、新しいDateオブジェクトとしてdueDate（またはnull）を送信
+        dueDate: dueDate ? dueDate : null,
         priority: parseInt(data.priority),
         categoryId,
       };
+      
+      // APIリクエスト用にデータを確認
+      console.log("送信するタスクデータ:", taskData);
       
       if (selectedTask) {
         // 更新の場合
