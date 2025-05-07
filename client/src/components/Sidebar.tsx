@@ -3,7 +3,7 @@ import CategoryList from "./CategoryList";
 import FilterList from "./FilterList";
 
 export default function Sidebar() {
-  const { isSidebarOpen, setSidebarOpen, setCategoryModalOpen } = useTaskContext();
+  const { isSidebarOpen, setSidebarOpen, setCategoryModalOpen, setTaskModalOpen } = useTaskContext();
   
   return (
     <>
@@ -24,7 +24,19 @@ export default function Sidebar() {
           {/* Sidebar */}
           <div className="fixed inset-y-0 left-0 flex flex-col w-full max-w-xs bg-white shadow-xl">
             <div className="p-4 flex items-center justify-between border-b border-slate-100">
-              <h2 className="text-lg font-semibold text-slate-700">メニュー</h2>
+              <button
+                onClick={() => {
+                  setTaskModalOpen(true);
+                  setSidebarOpen(false);
+                }}
+                className="flex items-center text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md shadow-sm transition-colors"
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                タスク追加
+              </button>
               <button
                 className="text-slate-500 hover:text-slate-700"
                 onClick={() => setSidebarOpen(false)}
@@ -71,10 +83,20 @@ interface SidebarContentProps {
 }
 
 function SidebarContent({ onAddCategory }: SidebarContentProps) {
+  const { setTaskModalOpen } = useTaskContext();
   return (
     <>
-      <div className="p-4 flex items-center justify-between border-b border-slate-100">
-        <h2 className="text-lg font-semibold text-slate-700">メニュー</h2>
+      <div className="p-4 flex justify-end border-b border-slate-100">
+        <button
+          onClick={() => setTaskModalOpen(true)}
+          className="flex items-center text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md shadow-sm transition-colors"
+          style={{
+            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+          }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          タスク追加
+        </button>
       </div>
       
       {/* Categories section */}
