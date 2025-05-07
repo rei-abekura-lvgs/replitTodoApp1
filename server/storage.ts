@@ -1,4 +1,6 @@
-import { InsertCategory, Category, InsertTask, Task, TaskFilters, SortOption } from "@shared/schema";
+import { InsertCategory, Category, InsertTask, Task, TaskFilters, SortOption, categories, tasks } from "@shared/schema";
+import { db } from "./db";
+import { eq, and, or, like, desc, asc, isNull, sql } from "drizzle-orm";
 
 // ストレージインターフェース
 export interface IStorage {
@@ -245,4 +247,251 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// データベースストレージ実装
+export class DatabaseStorage implements IStorage {
+  // カテゴリ関連メソッド
+  async getAllCategories(): Promise<Category[]> {
+    const result = await db.select().from(categories);
+    
+    // カテゴリごとのタスク数を取得してマップを作成
+    const categoryCounts = await Promise.all(
+      result.map(async (category) => {
+        const count = await this.getTaskCountByCategory(category.id);
+        return { ...category, taskCount: count };
+      })
+    );
+    
+    return categoryCounts;
+  }
+
+  async getCategoryById(id: number): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category;
+  }
+
+  async createCategory(categoryData: InsertCategory): Promise<Category> {
+    const [category] = await db.insert(categories).values(categoryData).returning();
+    return category;
+  }
+
+  async updateCategory(id: number, categoryData: Partial<InsertCategory>): Promise<Category | undefined> {
+    const [updatedCategory] = await db
+      .update(categories)
+      .set(categoryData)
+      .where(eq(categories.id, id))
+      .returning();
+    
+    return updatedCategory;
+  }
+
+  async deleteCategory(id: number): Promise<boolean> {
+    // まず、このカテゴリに関連するすべてのタスクのカテゴリIDをnullに設定
+    await db
+      .update(tasks)
+      .set({ categoryId: null })
+      .where(eq(tasks.categoryId, id));
+    
+    // カテゴリを削除
+    const result = await db
+      .delete(categories)
+      .where(eq(categories.id, id))
+      .returning({ id: categories.id });
+    
+    return result.length > 0;
+  }
+
+  // タスク関連メソッド
+  async getAllTasks(filters?: TaskFilters, sortBy: SortOption = 'createdAt'): Promise<Task[]> {
+    let query = db.select().from(tasks);
+    
+    // フィルター条件の適用
+    if (filters) {
+      const conditions = [];
+      
+      if (filters.isCompleted !== undefined) {
+        conditions.push(eq(tasks.isCompleted, filters.isCompleted));
+      }
+      
+      if (filters.priority !== undefined) {
+        conditions.push(eq(tasks.priority, filters.priority));
+      }
+      
+      if (filters.categoryId !== undefined) {
+        conditions.push(eq(tasks.categoryId, filters.categoryId));
+      }
+      
+      if (filters.searchTerm) {
+        conditions.push(
+          or(
+            like(tasks.title, `%${filters.searchTerm}%`),
+            like(tasks.description, `%${filters.searchTerm}%`)
+          )
+        );
+      }
+      
+      if (filters.dueDateToday) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        conditions.push(
+          and(
+            sql`${tasks.dueDate} >= ${today.toISOString()}`,
+            sql`${tasks.dueDate} < ${tomorrow.toISOString()}`
+          )
+        );
+      }
+      
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+    }
+    
+    // ソート条件の適用
+    switch (sortBy) {
+      case 'dueDate':
+        query = query.orderBy(asc(tasks.dueDate));
+        break;
+      case 'priority':
+        query = query.orderBy(desc(tasks.priority));
+        break;
+      case 'title':
+        query = query.orderBy(asc(tasks.title));
+        break;
+      case 'createdAt':
+      default:
+        query = query.orderBy(desc(tasks.createdAt));
+        break;
+    }
+    
+    const result = await query;
+    return result;
+  }
+
+  async getTaskById(id: number): Promise<Task | undefined> {
+    const [task] = await db.select().from(tasks).where(eq(tasks.id, id));
+    return task;
+  }
+
+  async createTask(taskData: InsertTask): Promise<Task> {
+    const [task] = await db.insert(tasks).values(taskData).returning();
+    return task;
+  }
+
+  async updateTask(id: number, taskData: Partial<InsertTask>): Promise<Task | undefined> {
+    const [updatedTask] = await db
+      .update(tasks)
+      .set({ ...taskData, updatedAt: new Date() })
+      .where(eq(tasks.id, id))
+      .returning();
+    
+    return updatedTask;
+  }
+
+  async deleteTask(id: number): Promise<boolean> {
+    const result = await db
+      .delete(tasks)
+      .where(eq(tasks.id, id))
+      .returning({ id: tasks.id });
+    
+    return result.length > 0;
+  }
+
+  async getTaskCountByCategory(categoryId: number): Promise<number> {
+    const result = await db
+      .select({ count: sql`count(*)` })
+      .from(tasks)
+      .where(eq(tasks.categoryId, categoryId));
+    
+    return Number(result[0].count);
+  }
+}
+
+// サンプルデータ投入用の関数
+async function initializeDatabase() {
+  // デフォルトカテゴリの追加（テーブルが空の場合のみ）
+  const existingCategories = await db.select().from(categories);
+  
+  if (existingCategories.length === 0) {
+    const defaultCategories = [
+      { name: '仕事', color: 'blue' },
+      { name: '個人', color: 'green' },
+      { name: '買い物', color: 'amber' },
+      { name: '学習', color: 'purple' }
+    ];
+    
+    await db.insert(categories).values(defaultCategories);
+  }
+  
+  // サンプルタスクの追加（テーブルが空の場合のみ）
+  const existingTasks = await db.select().from(tasks);
+  
+  if (existingTasks.length === 0) {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const nextWeek = new Date(now);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    
+    const sampleTasks = [
+      {
+        title: 'プレゼン資料作成',
+        description: 'クライアントミーティング用のプレゼンテーション資料を作成する',
+        isCompleted: false,
+        dueDate: tomorrow,
+        priority: 3, // 高
+        categoryId: 1 // 仕事
+      },
+      {
+        title: '買い物リスト',
+        description: '夕食の材料を購入する：野菜、肉、調味料',
+        isCompleted: false,
+        dueDate: now,
+        priority: 2, // 中
+        categoryId: 3 // 買い物
+      },
+      {
+        title: '読書',
+        description: '新しい本を30ページ読む',
+        isCompleted: false,
+        dueDate: nextWeek,
+        priority: 1, // 低
+        categoryId: 2 // 個人
+      },
+      {
+        title: 'メール返信',
+        description: '重要な顧客からのメールに返信する',
+        isCompleted: true,
+        dueDate: now,
+        priority: 3, // 高
+        categoryId: 1 // 仕事
+      },
+      {
+        title: 'プログラミング学習',
+        description: 'React.jsのチュートリアルを完了させる',
+        isCompleted: false,
+        dueDate: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000), // 3日後
+        priority: 2, // 中
+        categoryId: 4 // 学習
+      },
+      {
+        title: '請求書送付',
+        description: '先月の作業分の請求書を顧客に送付する',
+        isCompleted: false,
+        dueDate: now,
+        priority: 3, // 高
+        categoryId: 1 // 仕事
+      }
+    ];
+    
+    await db.insert(tasks).values(sampleTasks);
+  }
+}
+
+// アプリケーション起動時にデータベースを初期化
+initializeDatabase().catch(console.error);
+
+// DatabaseStorageを利用
+export const storage = new DatabaseStorage();
