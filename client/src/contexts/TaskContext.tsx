@@ -2,6 +2,11 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Category, Task, SortOption, TaskFilters } from "@shared/schema";
+import { demoTasks, demoCategories } from "@/demo-data";
+
+// 環境変数
+const IS_PRODUCTION = import.meta.env.PROD || window.location.hostname.includes('amplifyapp.com');
+const USE_DEMO_DATA = IS_PRODUCTION; // 本番環境（Amplify）ではデモデータを使用
 
 // タスク送信時のカスタム型（日付文字列を許可）
 type TaskWithStringDate = Omit<Task, "dueDate"> & {
@@ -121,6 +126,58 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     try {
       setIsTasksLoading(true);
       
+      // デモモードの場合、デモデータを使用
+      if (USE_DEMO_DATA) {
+        console.log('デモモード: デモデータを使用します');
+        // フィルタリングロジックはクライアント側で実装
+        let filteredTasks = [...demoTasks];
+        
+        // フィルターパラメータの準備
+        const activeFilters = { ...filters, ...filterParams };
+        if (selectedCategory) {
+          activeFilters.categoryId = selectedCategory;
+        }
+        if (searchTerm) {
+          activeFilters.searchTerm = searchTerm;
+        }
+        
+        // フィルタリング適用
+        if (activeFilters.isCompleted !== undefined) {
+          filteredTasks = filteredTasks.filter(task => task.isCompleted === activeFilters.isCompleted);
+        }
+        if (activeFilters.priority !== undefined) {
+          filteredTasks = filteredTasks.filter(task => task.priority === activeFilters.priority);
+        }
+        if (activeFilters.categoryId !== undefined) {
+          filteredTasks = filteredTasks.filter(task => task.categoryId === activeFilters.categoryId);
+        }
+        if (activeFilters.searchTerm) {
+          const search = activeFilters.searchTerm.toLowerCase();
+          filteredTasks = filteredTasks.filter(task => 
+            task.title.toLowerCase().includes(search) || 
+            (task.description && task.description.toLowerCase().includes(search))
+          );
+        }
+        
+        // ソート適用
+        const currentSortBy = sortOption || sortBy;
+        filteredTasks.sort((a, b) => {
+          if (currentSortBy === 'dueDate') {
+            return (a.dueDate?.getTime() || 0) - (b.dueDate?.getTime() || 0);
+          } else if (currentSortBy === 'priority') {
+            return (b.priority || 0) - (a.priority || 0);
+          } else if (currentSortBy === 'title') {
+            return a.title.localeCompare(b.title);
+          } else {
+            return (a.createdAt?.getTime() || 0) - (b.createdAt?.getTime() || 0);
+          }
+        });
+        
+        setTasks(filteredTasks);
+        return;
+      }
+      
+      // 通常モード（APIを使用）
       // フィルターパラメータの準備
       const activeFilters = { ...filters, ...filterParams };
       if (selectedCategory) {
@@ -151,12 +208,18 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
       setTasks(data);
     } catch (error) {
-      toast({
-        title: "エラー",
-        description: "タスクの取得に失敗しました",
-        variant: "destructive",
-      });
-      console.error(error);
+      if (USE_DEMO_DATA) {
+        // エラー時もデモデータを使用
+        console.log('APIエラー: デモデータにフォールバックします');
+        setTasks(demoTasks);
+      } else {
+        toast({
+          title: "エラー",
+          description: "タスクの取得に失敗しました",
+          variant: "destructive",
+        });
+        console.error(error);
+      }
     } finally {
       setIsTasksLoading(false);
     }
@@ -165,6 +228,27 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   // タスク作成関数
   const createTask = async (task: Omit<TaskWithStringDate, "id" | "createdAt" | "updatedAt">) => {
     try {
+      // デモモードの場合、操作をシミュレート
+      if (USE_DEMO_DATA) {
+        console.log('デモモード: タスク作成をシミュレート', task);
+        
+        // 成功メッセージを表示
+        toast({
+          title: "デモモード",
+          description: "タスクを作成しました（デモモードではデータは永続化されません）",
+        });
+        
+        // 擬似的なタスクオブジェクトを返す
+        return {
+          id: Math.floor(Math.random() * 1000) + 100,
+          ...task,
+          dueDate: task.dueDate ? new Date(task.dueDate) : null,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        } as Task;
+      }
+      
+      // 通常モード（APIを使用）
       // サーバーに送信する前に日付が正しく処理されているか確認
       const processedTask = {
         ...task,
@@ -212,6 +296,30 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   // タスク更新関数
   const updateTask = async (id: number, task: Partial<TaskWithStringDate>) => {
     try {
+      // デモモードの場合、操作をシミュレート
+      if (USE_DEMO_DATA) {
+        console.log('デモモード: タスク更新をシミュレート', id, task);
+        
+        // 成功メッセージを表示
+        toast({
+          title: "デモモード",
+          description: "タスクを更新しました（デモモードではデータは永続化されません）",
+        });
+        
+        // 次回取得時にデモデータを再取得するため、fetchTasksを呼び出す
+        await fetchTasks();
+        
+        // 擬似的な更新済みタスクオブジェクトを返す
+        return {
+          id,
+          ...demoTasks.find(t => t.id === id),
+          ...task,
+          dueDate: task.dueDate ? new Date(task.dueDate) : null,
+          updatedAt: new Date()
+        } as Task;
+      }
+
+      // 通常モード（APIを使用）
       const response = await apiRequest('PUT', `/api/tasks/${id}`, task);
       const updatedTask = await response.json();
       
@@ -241,6 +349,24 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   // タスク削除関数
   const deleteTask = async (id: number) => {
     try {
+      // デモモードの場合、操作をシミュレート
+      if (USE_DEMO_DATA) {
+        console.log('デモモード: タスク削除をシミュレート', id);
+        
+        // 成功メッセージを表示
+        toast({
+          title: "デモモード",
+          description: "タスクを削除しました（デモモードではデータは永続化されません）",
+        });
+        
+        // 次回取得時にデモデータを再取得するため、fetchTasksを呼び出す
+        await fetchTasks();
+        await fetchCategories();
+        
+        return;
+      }
+      
+      // 通常モード（APIを使用）
       await apiRequest('DELETE', `/api/tasks/${id}`);
       
       // タスク一覧を更新
@@ -271,16 +397,31 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const fetchCategories = async () => {
     try {
       setIsCategoriesLoading(true);
+      
+      // デモモードの場合、デモデータを使用
+      if (USE_DEMO_DATA) {
+        console.log('デモモード: カテゴリデモデータを使用します');
+        setCategories(demoCategories);
+        return;
+      }
+      
+      // 通常モード（APIを使用）
       const response = await apiRequest('GET', '/api/categories');
       const data = await response.json();
       setCategories(data);
     } catch (error) {
-      toast({
-        title: "エラー",
-        description: "カテゴリの取得に失敗しました",
-        variant: "destructive",
-      });
-      console.error(error);
+      if (USE_DEMO_DATA) {
+        // エラー時もデモデータを使用
+        console.log('APIエラー: カテゴリデモデータにフォールバックします');
+        setCategories(demoCategories);
+      } else {
+        toast({
+          title: "エラー",
+          description: "カテゴリの取得に失敗しました",
+          variant: "destructive",
+        });
+        console.error(error);
+      }
     } finally {
       setIsCategoriesLoading(false);
     }
