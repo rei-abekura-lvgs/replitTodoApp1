@@ -24,7 +24,7 @@ export default function Sidebar() {
           {/* Sidebar */}
           <div className="fixed inset-y-0 left-0 flex flex-col w-full max-w-xs bg-white shadow-xl">
             <div className="p-4 border-b border-slate-100">
-              <div className="flex justify-end mb-2">
+              <div className="flex justify-end">
                 <button
                   className="text-slate-500 hover:text-slate-700"
                   onClick={() => setSidebarOpen(false)}
@@ -32,19 +32,6 @@ export default function Sidebar() {
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
-              <button
-                onClick={() => {
-                  setTaskModalOpen(true);
-                  setSidebarOpen(false);
-                }}
-                className="flex items-center justify-center w-full text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-medium shadow-sm transition-colors"
-                style={{
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                }}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                タスク追加
-              </button>
             </div>
             
             <div className="flex-1 overflow-y-auto p-4">
@@ -88,18 +75,7 @@ function SidebarContent({ onAddCategory }: SidebarContentProps) {
   const { setTaskModalOpen } = useTaskContext();
   return (
     <>
-      <div className="p-4 border-b border-slate-100">
-        <button
-          onClick={() => setTaskModalOpen(true)}
-          className="flex items-center justify-center w-full text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-medium shadow-sm transition-colors"
-          style={{
-            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-          }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          タスク追加
-        </button>
-      </div>
+
       
       {/* Categories section */}
       <div className="p-4">
