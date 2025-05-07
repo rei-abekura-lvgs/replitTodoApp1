@@ -89,7 +89,7 @@ export default function TaskModal() {
   // フォーム送信処理
   const onSubmit = async (data: TaskFormValues) => {
     // 日付と時間を結合
-    let dueDate: Date | undefined = undefined;
+    let dueDate: Date | null = null;
     
     if (data.dueDate) {
       if (data.dueTime) {
@@ -223,7 +223,7 @@ export default function TaskModal() {
                         <div className="flex-1 border border-slate-300 rounded-md p-2 flex items-center justify-center cursor-pointer hover:bg-red-50 data-[state=checked]:bg-red-100 data-[state=checked]:border-red-500">
                           <RadioGroupItem value="3" id="priority-high" className="sr-only" />
                           <label htmlFor="priority-high" className="flex items-center cursor-pointer w-full justify-center">
-                            <span className="material-icons text-red-500 mr-1">priority_high</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 mr-1"><path d="m3 16 4 4 4-4"></path><path d="M7 20V4"></path><path d="m21 8-4-4-4 4"></path><path d="M17 4v16"></path></svg>
                             <span className="text-sm font-medium">高</span>
                           </label>
                         </div>
@@ -231,7 +231,7 @@ export default function TaskModal() {
                         <div className="flex-1 border border-slate-300 rounded-md p-2 flex items-center justify-center cursor-pointer hover:bg-amber-50 data-[state=checked]:bg-amber-100 data-[state=checked]:border-amber-500">
                           <RadioGroupItem value="2" id="priority-medium" className="sr-only" />
                           <label htmlFor="priority-medium" className="flex items-center cursor-pointer w-full justify-center">
-                            <span className="material-icons text-amber-500 mr-1">drag_handle</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500 mr-1"><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                             <span className="text-sm font-medium">中</span>
                           </label>
                         </div>
@@ -239,7 +239,7 @@ export default function TaskModal() {
                         <div className="flex-1 border border-slate-300 rounded-md p-2 flex items-center justify-center cursor-pointer hover:bg-green-50 data-[state=checked]:bg-green-100 data-[state=checked]:border-green-500">
                           <RadioGroupItem value="1" id="priority-low" className="sr-only" />
                           <label htmlFor="priority-low" className="flex items-center cursor-pointer w-full justify-center">
-                            <span className="material-icons text-green-500 mr-1">arrow_downward</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500 mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
                             <span className="text-sm font-medium">低</span>
                           </label>
                         </div>
