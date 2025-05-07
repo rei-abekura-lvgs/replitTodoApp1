@@ -129,20 +129,8 @@ export default function TaskModal() {
         await createTask(taskData);
       }
       
-      // タスク保存成功後も閉じない
-      // ユーザーが明示的に閉じるアクションを取るまでモーダルを表示したままにする
-      
-      // タスク作成後は入力をリセットしてさらに入力できるようにする
-      if (!selectedTask) {
-        form.reset({
-          title: "",
-          description: "",
-          dueDate: "",
-          dueTime: "",
-          priority: "2",
-          categoryId: "",
-        });
-      }
+      // タスク保存成功後にモーダルを閉じる
+      handleClose();
     } catch (error) {
       console.error("タスク保存エラー:", error);
     } finally {
