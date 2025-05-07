@@ -87,7 +87,7 @@ export default function CategoryList() {
             <button 
               className={`flex items-center w-full px-3 py-3 text-left rounded-md transition-all ${
                 selectedCategory === category.id 
-                  ? 'bg-primary-100 text-primary-900 font-bold border-l-4 border-primary-600 shadow-sm pl-4' 
+                  ? 'selected-item' 
                   : 'hover:bg-slate-100 text-slate-700'
               }`}
               onClick={() => handleCategoryClick(category.id)}
@@ -113,7 +113,7 @@ export default function CategoryList() {
           <button 
             className={`flex items-center w-full px-3 py-3 text-left rounded-md transition-all ${
               selectedCategory === -1 
-                ? 'bg-primary-100 text-primary-900 font-bold border-l-4 border-primary-600 shadow-sm pl-4' 
+                ? 'selected-item' 
                 : 'hover:bg-slate-100 text-slate-700'
             }`}
             onClick={() => handleCategoryClick(-1)}

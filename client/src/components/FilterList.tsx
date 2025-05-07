@@ -37,7 +37,7 @@ export default function FilterList() {
     <div className="space-y-1">
       <button 
         className={`flex items-center w-full px-3 py-3 text-left rounded-md hover:bg-slate-100 transition-all ${
-          filters.dueDateToday ? 'bg-primary-100 text-primary-900 font-bold border-l-4 border-primary-600 shadow-sm pl-4' : 'text-slate-700'
+          filters.dueDateToday ? 'selected-item' : 'text-slate-700'
         }`}
         onClick={handleTodayDueClick}
       >
@@ -47,7 +47,7 @@ export default function FilterList() {
       
       <button 
         className={`flex items-center w-full px-3 py-3 text-left rounded-md hover:bg-slate-100 transition-all ${
-          filters.priority === 3 ? 'bg-primary-100 text-primary-900 font-bold border-l-4 border-primary-600 shadow-sm pl-4' : 'text-slate-700'
+          filters.priority === 3 ? 'selected-item' : 'text-slate-700'
         }`}
         onClick={handleHighPriorityClick}
       >
@@ -57,7 +57,7 @@ export default function FilterList() {
       
       <button 
         className={`flex items-center w-full px-3 py-3 text-left rounded-md hover:bg-slate-100 transition-all ${
-          filters.isCompleted === true ? 'bg-primary-100 text-primary-900 font-bold border-l-4 border-primary-600 shadow-sm pl-4' : 'text-slate-700'
+          filters.isCompleted === true ? 'selected-item' : 'text-slate-700'
         }`}
         onClick={handleCompletedClick}
       >
