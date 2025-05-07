@@ -1,0 +1,161 @@
+28
+
+                                 To address all issues (including breaking changes), run:
+
+29
+
+                                 npm audit fix --force
+
+30
+
+                                 Run `npm audit` for details.
+
+31
+
+2025-05-07T09:54:16.011Z [INFO]: # Completed phase: preBuild
+
+32
+
+                                 # Starting phase: build
+
+33
+
+                                 # Executing command: npm run build
+
+34
+
+2025-05-07T09:54:16.148Z [INFO]: > rest-express@1.0.0 build
+
+35
+
+                                 > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+36
+
+2025-05-07T09:54:16.901Z [INFO]: vite v5.4.14 building for production...
+
+37
+
+2025-05-07T09:54:16.960Z [INFO]: transforming...
+
+38
+
+2025-05-07T09:54:18.229Z [WARNING]: Browserslist: browsers data (caniuse-lite) is 7 months old. Please run:
+
+39
+
+                                    npx update-browserslist-db@latest
+
+40
+
+                                    Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+41
+
+2025-05-07T09:54:23.006Z [INFO]: ✓ 2560 modules transformed.
+
+42
+
+2025-05-07T09:54:23.314Z [INFO]: rendering chunks...
+
+43
+
+2025-05-07T09:54:23.325Z [INFO]: computing gzip size...
+
+44
+
+2025-05-07T09:54:23.464Z [INFO]: ../dist/public/index.html                   0.95 kB │ gzip:   0.65 kB
+
+45
+
+2025-05-07T09:54:23.465Z [INFO]: ../dist/public/assets/index-DlFVWgAs.css   67.07 kB │ gzip:  11.55 kB
+
+46
+
+                                 ../dist/public/assets/index-Smts0qcH.js   477.28 kB │ gzip: 147.01 kB
+
+47
+
+                                 ✓ built in 6.54s
+
+48
+
+2025-05-07T09:54:23.501Z [WARNING]: dist/index.js  20.4kb
+
+49
+
+                                    ⚡ Done in 5ms
+
+50
+
+2025-05-07T09:54:23.508Z [INFO]: # Completed phase: build
+
+51
+
+                                 ## Completed Frontend Build
+
+52
+
+2025-05-07T09:54:23.520Z [INFO]: ## Build completed successfully
+
+53
+
+2025-05-07T09:54:23.521Z [INFO]: # Starting caching...
+
+54
+
+2025-05-07T09:54:23.525Z [INFO]: # Creating cache artifact...
+
+55
+
+2025-05-07T09:54:35.469Z [INFO]: # Created cache artifact
+
+56
+
+2025-05-07T09:54:35.564Z [INFO]: # Uploading cache artifact...
+
+57
+
+2025-05-07T09:54:39.825Z [INFO]: # Uploaded cache artifact
+
+58
+
+2025-05-07T09:54:39.961Z [INFO]: # Caching completed
+
+59
+
+2025-05-07T09:54:39.969Z [WARNING]: !! No index.html detected in deploy folder: /codebuild/output/src3494733193/src/replitTodoApp1/dist
+
+60
+
+2025-05-07T09:54:39.969Z [INFO]: # Starting build artifact upload process...
+
+61
+
+2025-05-07T09:54:40.016Z [INFO]: # Uploading build artifact '__artifacts.zip'...
+
+62
+
+2025-05-07T09:54:40.237Z [INFO]: # Build artifact upload completed
+
+63
+
+2025-05-07T09:54:40.237Z [INFO]: # Starting environment caching...
+
+64
+
+2025-05-07T09:54:40.237Z [INFO]: # Environment caching completed
+
+65
+
+66
+
+デプロイ
+19 秒
+0
+
+2025-05-07T09:55:14 [INFO]: Beginning deployment for application d3inmi5kye0rr7, branch:main, buildId 0000000001
+
+1
+
+2025-05-07T09:55:15 [INFO]: Deployment complete
