@@ -143,7 +143,10 @@ export default function TaskModal() {
     <div className="fixed inset-0 bg-slate-900 bg-opacity-50 flex items-center justify-center z-50 fade-in" onClick={handleClose}>
       <div 
         className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 md:mx-0"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          // イベントの伝播を停止して、モーダル背景のクリックイベントが発火しないようにする
+          e.stopPropagation();
+        }}
       >
         <div className="p-4 border-b border-slate-200 flex items-center justify-between">
           <h3 className="text-lg font-medium text-slate-800">
@@ -159,7 +162,11 @@ export default function TaskModal() {
         
         <div className="p-4">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form 
+              onSubmit={form.handleSubmit(onSubmit)} 
+              className="space-y-4"
+              onClick={(e) => e.stopPropagation()} // フォーム内のクリックでモーダルが閉じないようにする
+            >
               <FormField
                 control={form.control}
                 name="title"
@@ -169,6 +176,7 @@ export default function TaskModal() {
                     <FormControl>
                       <Input 
                         placeholder="タスクのタイトルを入力" 
+                        onClick={(e) => e.stopPropagation()}
                         {...field} 
                       />
                     </FormControl>
@@ -187,6 +195,7 @@ export default function TaskModal() {
                       <Textarea 
                         placeholder="タスクの詳細を入力" 
                         rows={3}
+                        onClick={(e) => e.stopPropagation()}
                         {...field} 
                       />
                     </FormControl>
@@ -203,7 +212,11 @@ export default function TaskModal() {
                     <FormItem>
                       <FormLabel>期限日</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input 
+                          type="date" 
+                          onClick={(e) => e.stopPropagation()}
+                          {...field} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -217,7 +230,11 @@ export default function TaskModal() {
                     <FormItem>
                       <FormLabel>期限時間</FormLabel>
                       <FormControl>
-                        <Input type="time" {...field} />
+                        <Input 
+                          type="time" 
+                          onClick={(e) => e.stopPropagation()}
+                          {...field} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -236,6 +253,7 @@ export default function TaskModal() {
                         onValueChange={field.onChange}
                         value={field.value}
                         className="flex space-x-2"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <div className="flex-1 border border-slate-300 rounded-md p-2 flex items-center justify-center cursor-pointer hover:bg-red-50 data-[state=checked]:bg-red-100 data-[state=checked]:border-red-500">
                           <RadioGroupItem value="3" id="priority-high" className="sr-only" />
@@ -278,7 +296,7 @@ export default function TaskModal() {
                       value={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger onClick={(e) => e.stopPropagation()}>
                           <SelectValue placeholder="カテゴリを選択" />
                         </SelectTrigger>
                       </FormControl>
