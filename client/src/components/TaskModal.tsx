@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,6 +34,9 @@ export default function TaskModal() {
     updateTask,
     categories
   } = useTaskContext();
+  
+  // 送信中状態を管理
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // フォーム初期化
   const form = useForm<TaskFormValues>({
@@ -88,38 +91,51 @@ export default function TaskModal() {
   
   // フォーム送信処理
   const onSubmit = async (data: TaskFormValues) => {
-    // 日付と時間を結合
-    let dueDate: Date | null = null;
+    // 既に送信中なら処理をスキップ
+    if (isSubmitting) return;
     
-    if (data.dueDate) {
-      if (data.dueTime) {
-        dueDate = new Date(`${data.dueDate}T${data.dueTime}`);
-      } else {
-        dueDate = new Date(`${data.dueDate}T00:00:00`);
+    try {
+      // 送信中状態に設定
+      setIsSubmitting(true);
+      
+      // 日付と時間を結合
+      let dueDate: Date | null = null;
+      
+      if (data.dueDate) {
+        if (data.dueTime) {
+          dueDate = new Date(`${data.dueDate}T${data.dueTime}`);
+        } else {
+          dueDate = new Date(`${data.dueDate}T00:00:00`);
+        }
       }
+      
+      // カテゴリIDの処理
+      const categoryId = data.categoryId && data.categoryId !== "none" ? parseInt(data.categoryId) : null;
+      
+      const taskData = {
+        title: data.title,
+        description: data.description || "",
+        isCompleted: selectedTask ? selectedTask.isCompleted : false,
+        dueDate,
+        priority: parseInt(data.priority),
+        categoryId,
+      };
+      
+      if (selectedTask) {
+        // 更新の場合
+        await updateTask(selectedTask.id, taskData);
+      } else {
+        // 新規作成の場合
+        await createTask(taskData);
+      }
+      
+      handleClose();
+    } catch (error) {
+      console.error("タスク保存エラー:", error);
+    } finally {
+      // 送信中状態を解除
+      setIsSubmitting(false);
     }
-    
-    // カテゴリIDの処理
-    const categoryId = data.categoryId && data.categoryId !== "none" ? parseInt(data.categoryId) : null;
-    
-    const taskData = {
-      title: data.title,
-      description: data.description || "",
-      isCompleted: selectedTask ? selectedTask.isCompleted : false,
-      dueDate,
-      priority: parseInt(data.priority),
-      categoryId,
-    };
-    
-    if (selectedTask) {
-      // 更新の場合
-      await updateTask(selectedTask.id, taskData);
-    } else {
-      // 新規作成の場合
-      await createTask(taskData);
-    }
-    
-    handleClose();
   };
   
   return (
@@ -284,11 +300,15 @@ export default function TaskModal() {
                   type="button" 
                   variant="outline"
                   onClick={handleClose}
+                  disabled={isSubmitting}
                 >
                   キャンセル
                 </Button>
-                <Button type="submit">
-                  保存
+                <Button 
+                  type="submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "保存中..." : "保存"}
                 </Button>
               </div>
             </form>
