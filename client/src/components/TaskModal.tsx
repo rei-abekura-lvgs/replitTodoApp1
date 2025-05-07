@@ -140,9 +140,24 @@ export default function TaskModal() {
   };
   
   return (
-    <div className="fixed inset-0 bg-slate-900 bg-opacity-50 flex items-center justify-center z-50 fade-in" onClick={handleClose}>
+    <div 
+      className="fixed inset-0 bg-slate-900 bg-opacity-50 flex items-center justify-center z-50 fade-in" 
+      onClick={(e) => {
+        // モーダルの背景部分をクリックした場合のみモーダルを閉じる
+        // ターゲット要素が背景そのものである場合のみ閉じる
+        if (e.target === e.currentTarget) {
+          handleClose();
+        }
+      }}
+    >
       <div 
-        className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 md:mx-0"
+        className="bg-white rounded-xl shadow-lg w-full max-w-xl mx-4 md:mx-0 p-4 relative"
+        style={{ 
+          margin: '20px', 
+          padding: '16px',
+          border: '2px solid #f8fafc',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+        }} /* 外枠に余白を追加し、見た目も改善 */
         onClick={(e) => {
           // イベントの伝播を停止して、モーダル背景のクリックイベントが発火しないようにする
           e.stopPropagation();
