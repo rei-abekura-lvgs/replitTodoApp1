@@ -36,51 +36,35 @@ export const insertUserSchema = createInsertSchema(users).pick({
 });
 
 export const insertCategorySchema = createInsertSchema(categories);
-// カスタムの日付スキーマを作成
-const dateStringSchema = z.string().refine(
-  (val) => {
-    try {
-      const date = new Date(val);
-      return !isNaN(date.getTime());
-    } catch (e) {
-      return false;
-    }
-  },
-  { message: "無効な日付文字列です" }
-);
-
-// 日付を処理するためのカスタム型変換
-const dateTransformer = z.preprocess((val) => {
-  // nullまたはundefinedの場合、そのまま返す
-  if (val === null || val === undefined) {
-    return null;
-  }
-  
-  // すでにDate型の場合
-  if (val instanceof Date) {
-    return isNaN(val.getTime()) ? null : val;
-  }
-  
-  // 文字列の場合
-  if (typeof val === 'string') {
-    try {
-      const date = new Date(val);
-      return isNaN(date.getTime()) ? null : date;
-    } catch (e) {
-      return null;
-    }
-  }
-  
-  return null;
-}, z.date().nullable());
-
-// タスク挿入スキーマ
-export const insertTaskSchema = createInsertSchema(tasks, {
-  dueDate: () => dateTransformer,
-}).omit({
+// タスク挿入スキーマ - 最もシンプルなアプローチでまず試してみる
+export const insertTaskSchema = createInsertSchema(tasks).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+});
+
+// ネイティブなZodスキーマをカスタマイズ
+export const taskCreateSchema = z.object({
+  title: z.string().min(1, { message: "タイトルは必須です" }),
+  description: z.string().optional().default(""),
+  isCompleted: z.boolean().default(false),
+  dueDate: z.string().nullable().optional().transform((val) => {
+    // 空文字やnullやundefinedの場合はnullを返す
+    if (!val) return null;
+    
+    try {
+      // ISO形式の文字列として処理
+      const date = new Date(val);
+      // 有効な日付かどうかチェック
+      if (isNaN(date.getTime())) return null;
+      return date;
+    } catch (e) {
+      // 無効な形式の場合はnullを返す
+      return null;
+    }
+  }),
+  priority: z.number().int().min(1).max(3).default(2),
+  categoryId: z.number().int().positive().nullable().optional(),
 });
 
 // タイプ定義

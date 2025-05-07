@@ -1,7 +1,7 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCategorySchema, insertTaskSchema } from "@shared/schema";
+import { insertCategorySchema, insertTaskSchema, taskCreateSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -130,8 +130,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // リクエストデータをログに出力（デバッグ用）
       console.log("タスク作成リクエスト:", req.body);
       
-      // バリデーション処理
-      const validatedData = insertTaskSchema.parse(req.body);
+      // 新しいカスタムスキーマでバリデーション
+      const validatedData = taskCreateSchema.parse(req.body);
       
       // validatedDataをログに出力（デバッグ用）
       console.log("バリデーション後のタスクデータ:", validatedData);
@@ -140,7 +140,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(newTask);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.error("Zodバリデーションエラー:", error.errors);
+        console.error("Zodバリデーションエラー:", JSON.stringify(error.errors, null, 2));
+      // リクエストボディをログに出力
+      console.error("リクエストボディ:", JSON.stringify(req.body, null, 2));
         return res.status(400).json({ 
           message: "入力データが不正です", 
           errors: error.errors,
@@ -155,7 +157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.put("/tasks/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = insertTaskSchema.partial().parse(req.body);
+      const validatedData = taskCreateSchema.partial().parse(req.body);
       
       const updatedTask = await storage.updateTask(id, validatedData);
       
