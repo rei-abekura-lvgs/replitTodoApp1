@@ -344,27 +344,57 @@ export default function TaskModal() {
                         className="flex space-x-2"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <div className="flex-1 border border-slate-300 rounded-md p-2 flex items-center justify-center cursor-pointer hover:bg-red-50 data-[state=checked]:bg-red-100 data-[state=checked]:border-red-500">
+                        {/* 高優先度 */}
+                        <div 
+                          className={`flex-1 rounded-md p-3 flex items-center justify-center cursor-pointer
+                            border-2 transition-all duration-200
+                            ${field.value === "3" 
+                              ? "bg-red-100 border-red-500 shadow-md" 
+                              : "border-slate-200 hover:bg-red-50"}`}
+                        >
                           <RadioGroupItem value="3" id="priority-high" className="sr-only" />
-                          <label htmlFor="priority-high" className="flex items-center cursor-pointer w-full justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 mr-1"><path d="m3 16 4 4 4-4"></path><path d="M7 20V4"></path><path d="m21 8-4-4-4 4"></path><path d="M17 4v16"></path></svg>
-                            <span className="text-sm font-medium">高</span>
+                          <label htmlFor="priority-high" className="flex flex-col items-center cursor-pointer w-full justify-center">
+                            {/* 優先度高アイコン - 上向き三角形 */}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 mb-1">
+                              <polygon points="12 2 4 14 20 14" />
+                            </svg>
+                            <span className={`text-sm font-medium ${field.value === "3" ? "text-red-700 font-bold" : "text-red-500"}`}>高</span>
                           </label>
                         </div>
                         
-                        <div className="flex-1 border border-slate-300 rounded-md p-2 flex items-center justify-center cursor-pointer hover:bg-amber-50 data-[state=checked]:bg-amber-100 data-[state=checked]:border-amber-500">
+                        {/* 中優先度 */}
+                        <div 
+                          className={`flex-1 rounded-md p-3 flex items-center justify-center cursor-pointer
+                            border-2 transition-all duration-200
+                            ${field.value === "2" 
+                              ? "bg-amber-100 border-amber-500 shadow-md" 
+                              : "border-slate-200 hover:bg-amber-50"}`}
+                        >
                           <RadioGroupItem value="2" id="priority-medium" className="sr-only" />
-                          <label htmlFor="priority-medium" className="flex items-center cursor-pointer w-full justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500 mr-1"><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                            <span className="text-sm font-medium">中</span>
+                          <label htmlFor="priority-medium" className="flex flex-col items-center cursor-pointer w-full justify-center">
+                            {/* 優先度中アイコン - 四角形 */}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500 mb-1">
+                              <rect x="6" y="6" width="12" height="12" rx="2" />
+                            </svg>
+                            <span className={`text-sm font-medium ${field.value === "2" ? "text-amber-700 font-bold" : "text-amber-500"}`}>中</span>
                           </label>
                         </div>
                         
-                        <div className="flex-1 border border-slate-300 rounded-md p-2 flex items-center justify-center cursor-pointer hover:bg-green-50 data-[state=checked]:bg-green-100 data-[state=checked]:border-green-500">
+                        {/* 低優先度 */}
+                        <div 
+                          className={`flex-1 rounded-md p-3 flex items-center justify-center cursor-pointer
+                            border-2 transition-all duration-200
+                            ${field.value === "1" 
+                              ? "bg-green-100 border-green-500 shadow-md" 
+                              : "border-slate-200 hover:bg-green-50"}`}
+                        >
                           <RadioGroupItem value="1" id="priority-low" className="sr-only" />
-                          <label htmlFor="priority-low" className="flex items-center cursor-pointer w-full justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500 mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
-                            <span className="text-sm font-medium">低</span>
+                          <label htmlFor="priority-low" className="flex flex-col items-center cursor-pointer w-full justify-center">
+                            {/* 優先度低アイコン - 下向き三角形 */}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500 mb-1">
+                              <polygon points="4 10 12 22 20 10" />
+                            </svg>
+                            <span className={`text-sm font-medium ${field.value === "1" ? "text-green-700 font-bold" : "text-green-500"}`}>低</span>
                           </label>
                         </div>
                       </RadioGroup>
