@@ -147,18 +147,20 @@ export default function TaskModal() {
       // APIリクエスト用にデータを確認
       console.log("送信するタスクデータ:", taskData);
 
-      // サーバーに送信する前に日付をISO文字列に変換（必要であれば）
-      const serverTaskData = {
-        ...taskData,
-        dueDate: dueDate ? dueDate.toISOString() : null
-      };
-      
       if (selectedTask) {
         // 更新の場合
-        await updateTask(selectedTask.id, serverTaskData);
+        await updateTask(selectedTask.id, {
+          ...taskData,
+          // 日付は既にValidateされており、ISO文字列に変換して送信
+          dueDate: dueDate ? dueDate.toISOString() : null
+        });
       } else {
         // 新規作成の場合
-        await createTask(serverTaskData);
+        await createTask({
+          ...taskData,
+          // 日付は既にValidateされており、ISO文字列に変換して送信
+          dueDate: dueDate ? dueDate.toISOString() : null
+        });
       }
       
       // タスク保存成功後にモーダルを閉じる

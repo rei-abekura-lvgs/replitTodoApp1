@@ -3,6 +3,11 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Category, Task, SortOption, TaskFilters } from "@shared/schema";
 
+// タスク送信時のカスタム型（日付文字列を許可）
+type TaskWithStringDate = Omit<Task, "dueDate"> & {
+  dueDate?: string | Date | null;
+};
+
 // コンテキストの型定義
 interface TaskContextType {
   // タスク関連
@@ -11,8 +16,8 @@ interface TaskContextType {
   selectedTask: Task | null;
   setSelectedTask: (task: Task | null) => void;
   fetchTasks: (filters?: TaskFilters, sortBy?: SortOption) => Promise<void>;
-  createTask: (task: Omit<Task, "id" | "createdAt" | "updatedAt">) => Promise<void>;
-  updateTask: (id: number, task: Partial<Task>) => Promise<void>;
+  createTask: (task: Omit<TaskWithStringDate, "id" | "createdAt" | "updatedAt">) => Promise<void>;
+  updateTask: (id: number, task: Partial<TaskWithStringDate>) => Promise<void>;
   deleteTask: (id: number) => Promise<void>;
   toggleTaskCompletion: (id: number, isCompleted: boolean) => Promise<void>;
   
@@ -158,7 +163,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   };
   
   // タスク作成関数
-  const createTask = async (task: Omit<Task, "id" | "createdAt" | "updatedAt">) => {
+  const createTask = async (task: Omit<TaskWithStringDate, "id" | "createdAt" | "updatedAt">) => {
     try {
       // サーバーに送信する前に日付が正しく処理されているか確認
       const processedTask = {
@@ -205,7 +210,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   };
   
   // タスク更新関数
-  const updateTask = async (id: number, task: Partial<Task>) => {
+  const updateTask = async (id: number, task: Partial<TaskWithStringDate>) => {
     try {
       const response = await apiRequest('PUT', `/api/tasks/${id}`, task);
       const updatedTask = await response.json();
