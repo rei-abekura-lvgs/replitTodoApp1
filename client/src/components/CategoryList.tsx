@@ -72,7 +72,7 @@ export default function CategoryList() {
         <button 
           className={`flex items-center w-full px-3 py-2 text-left rounded-md ${
             selectedCategory === null 
-              ? 'bg-primary-50 text-primary-700' 
+              ? 'bg-primary-100 text-primary-800 font-medium border-l-4 border-primary-500' 
               : 'hover:bg-slate-100 text-slate-700'
           }`}
           onClick={() => handleCategoryClick(null)}
@@ -87,7 +87,7 @@ export default function CategoryList() {
             <button 
               className={`flex items-center w-full px-3 py-2 text-left rounded-md ${
                 selectedCategory === category.id 
-                  ? 'bg-primary-50 text-primary-700' 
+                  ? 'bg-primary-100 text-primary-800 font-medium border-l-4 border-primary-500' 
                   : 'hover:bg-slate-100 text-slate-700'
               }`}
               onClick={() => handleCategoryClick(category.id)}
@@ -95,15 +95,15 @@ export default function CategoryList() {
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`mr-2 ${CATEGORY_COLORS[category.color].split(' ')[0]}`}><circle cx="12" cy="12" r="10"></circle></svg>
               <span className="flex-1">{category.name}</span>
               <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">{category.taskCount}</span>
-              <button 
-                className="ml-2 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+              <span 
+                className="ml-2 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation(); // 親のボタンのクリックイベントを停止
                   setCategoryToDelete(category.id);
                 }}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-              </button>
+              </span>
             </button>
           </div>
         ))}
@@ -113,7 +113,7 @@ export default function CategoryList() {
           <button 
             className={`flex items-center w-full px-3 py-2 text-left rounded-md ${
               selectedCategory === -1 
-                ? 'bg-primary-50 text-primary-700' 
+                ? 'bg-primary-100 text-primary-800 font-medium border-l-4 border-primary-500' 
                 : 'hover:bg-slate-100 text-slate-700'
             }`}
             onClick={() => handleCategoryClick(-1)}
