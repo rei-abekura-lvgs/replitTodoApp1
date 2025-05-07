@@ -140,6 +140,11 @@ export class MemStorage implements IStorage {
     const task: Task = {
       id,
       ...taskData,
+      dueDate: taskData.dueDate ?? null,
+      priority: taskData.priority ?? 2, 
+      description: taskData.description ?? null,
+      isCompleted: taskData.isCompleted ?? false,
+      categoryId: taskData.categoryId ?? null,
       createdAt: now,
       updatedAt: now
     };
@@ -302,7 +307,8 @@ export class DatabaseStorage implements IStorage {
 
   // タスク関連メソッド
   async getAllTasks(filters?: TaskFilters, sortBy: SortOption = 'createdAt'): Promise<Task[]> {
-    let query = db.select().from(tasks);
+    // クエリの型を保持するための変数を定義
+    const queryBuilder = db.select().from(tasks);
     
     // フィルター条件の適用
     if (filters) {
@@ -344,28 +350,29 @@ export class DatabaseStorage implements IStorage {
       }
       
       if (conditions.length > 0) {
-        query = query.where(and(...conditions));
+        queryBuilder.where(and(...conditions));
       }
     }
     
     // ソート条件の適用
     switch (sortBy) {
       case 'dueDate':
-        query = query.orderBy(asc(tasks.dueDate));
+        queryBuilder.orderBy(asc(tasks.dueDate));
         break;
       case 'priority':
-        query = query.orderBy(desc(tasks.priority));
+        queryBuilder.orderBy(desc(tasks.priority));
         break;
       case 'title':
-        query = query.orderBy(asc(tasks.title));
+        queryBuilder.orderBy(asc(tasks.title));
         break;
       case 'createdAt':
       default:
-        query = query.orderBy(desc(tasks.createdAt));
+        queryBuilder.orderBy(desc(tasks.createdAt));
         break;
     }
     
-    const result = await query;
+    // クエリを実行
+    const result = await queryBuilder;
     return result;
   }
 
