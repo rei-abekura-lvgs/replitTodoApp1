@@ -135,11 +135,13 @@ export default function TaskModal() {
       // カテゴリIDの処理
       const categoryId = data.categoryId && data.categoryId !== "none" ? parseInt(data.categoryId) : null;
       
+      // タスクデータの準備
       const taskData = {
         title: data.title,
         description: data.description || "",
         isCompleted: selectedTask ? selectedTask.isCompleted : false,
-        dueDate, // nullまたは有効なDateオブジェクト
+        // ISO文字列として日付を扱う（サーバー側でDate型に変換される）
+        dueDate, 
         priority: parseInt(data.priority),
         categoryId,
       };
@@ -165,11 +167,44 @@ export default function TaskModal() {
       
       // タスク保存成功後にモーダルを閉じる
       handleClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error("タスク保存エラー:", error);
+      
+      // APIレスポンスからエラーメッセージを抽出する
+      let errorMessage = "タスクの保存中にエラーが発生しました";
+      
+      if (error.response) {
+        try {
+          // レスポンスボディがJSON形式の場合
+          const responseData = error.response.data;
+          if (responseData && responseData.message) {
+            errorMessage = responseData.message;
+            
+            // 詳細なエラー情報がある場合
+            if (responseData.detail) {
+              errorMessage += `: ${responseData.detail}`;
+            }
+            
+            // Zodバリデーションエラーの場合
+            if (responseData.errors && Array.isArray(responseData.errors)) {
+              const errorDetails = responseData.errors
+                .map((err: any) => err.message || JSON.stringify(err))
+                .join(", ");
+              errorMessage += ` (${errorDetails})`;
+            }
+          }
+        } catch (parseError) {
+          // JSONパースエラーなど、レスポンス解析に失敗した場合
+          console.error("エラーレスポンスの解析に失敗:", parseError);
+        }
+      } else if (error.message) {
+        // 一般的なエラーメッセージがある場合
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "エラー",
-        description: "タスクの保存中にエラーが発生しました",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

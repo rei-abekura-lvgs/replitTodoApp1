@@ -127,13 +127,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   apiRouter.post("/tasks", async (req, res) => {
     try {
+      // リクエストデータをログに出力（デバッグ用）
+      console.log("タスク作成リクエスト:", req.body);
+      
+      // バリデーション処理
       const validatedData = insertTaskSchema.parse(req.body);
+      
+      // validatedDataをログに出力（デバッグ用）
+      console.log("バリデーション後のタスクデータ:", validatedData);
+      
       const newTask = await storage.createTask(validatedData);
       res.status(201).json(newTask);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "入力データが不正です", errors: error.errors });
+        console.error("Zodバリデーションエラー:", error.errors);
+        return res.status(400).json({ 
+          message: "入力データが不正です", 
+          errors: error.errors,
+          detail: "日付などの入力形式を確認してください" 
+        });
       }
+      console.error("タスク作成エラー:", error);
       res.status(500).json({ message: "タスクの作成に失敗しました" });
     }
   });

@@ -36,47 +36,51 @@ export const insertUserSchema = createInsertSchema(users).pick({
 });
 
 export const insertCategorySchema = createInsertSchema(categories);
+// カスタムの日付スキーマを作成
+const dateStringSchema = z.string().refine(
+  (val) => {
+    try {
+      const date = new Date(val);
+      return !isNaN(date.getTime());
+    } catch (e) {
+      return false;
+    }
+  },
+  { message: "無効な日付文字列です" }
+);
+
+// 日付を処理するためのカスタム型変換
+const dateTransformer = z.preprocess((val) => {
+  // nullまたはundefinedの場合、そのまま返す
+  if (val === null || val === undefined) {
+    return null;
+  }
+  
+  // すでにDate型の場合
+  if (val instanceof Date) {
+    return isNaN(val.getTime()) ? null : val;
+  }
+  
+  // 文字列の場合
+  if (typeof val === 'string') {
+    try {
+      const date = new Date(val);
+      return isNaN(date.getTime()) ? null : date;
+    } catch (e) {
+      return null;
+    }
+  }
+  
+  return null;
+}, z.date().nullable());
+
 // タスク挿入スキーマ
-export const insertTaskSchema = createInsertSchema(tasks).omit({
+export const insertTaskSchema = createInsertSchema(tasks, {
+  dueDate: () => dateTransformer,
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-}).superRefine((data, ctx) => {
-  // dueDate の値がある場合の変換と検証
-  if (data.dueDate !== undefined && data.dueDate !== null) {
-    // 文字列の場合は Date に変換
-    if (typeof data.dueDate === 'string') {
-      try {
-        const parsedDate = new Date(data.dueDate);
-        // 有効な日付かどうかチェック
-        if (isNaN(parsedDate.getTime())) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.invalid_date,
-            message: "無効な日付形式です",
-          });
-          data.dueDate = null;
-        } else {
-          data.dueDate = parsedDate;
-        }
-      } catch (error) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.invalid_date,
-          message: "日付の変換中にエラーが発生しました",
-        });
-        data.dueDate = null;
-      }
-    }
-    // Date オブジェクトでない場合 (文字列の変換が失敗した場合も含む)
-    else if (!(data.dueDate instanceof Date)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.invalid_type,
-        expected: "date",
-        received: typeof data.dueDate,
-        message: "日付型が必要です",
-      });
-      data.dueDate = null;
-    }
-  }
 });
 
 // タイプ定義
