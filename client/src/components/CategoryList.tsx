@@ -44,7 +44,7 @@ export default function CategoryList() {
         }`}
         onClick={() => handleCategoryClick(null)}
       >
-        <span className="material-icons text-sm mr-2">radio_button_unchecked</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><circle cx="12" cy="12" r="10"></circle></svg>
         <span className="flex-1">すべて</span>
         <span className="text-xs px-2 py-0.5 rounded-full bg-primary-100 text-primary-800">{totalTaskCount}</span>
       </button>
@@ -59,7 +59,7 @@ export default function CategoryList() {
           }`}
           onClick={() => handleCategoryClick(category.id)}
         >
-          <span className={`material-icons text-sm mr-2 ${CATEGORY_COLORS[category.color].split(' ')[0]}`}>circle</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`mr-2 ${CATEGORY_COLORS[category.color].split(' ')[0]}`}><circle cx="12" cy="12" r="10"></circle></svg>
           <span className="flex-1">{category.name}</span>
           <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">{category.taskCount}</span>
         </button>
@@ -75,7 +75,7 @@ export default function CategoryList() {
           }`}
           onClick={() => handleCategoryClick(-1)}
         >
-          <span className="material-icons text-sm mr-2 text-slate-400">help_outline</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-slate-400"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg>
           <span className="flex-1">カテゴリなし</span>
           <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">{uncategorizedTaskCount}</span>
         </button>

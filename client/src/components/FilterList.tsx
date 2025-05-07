@@ -41,7 +41,7 @@ export default function FilterList() {
         }`}
         onClick={handleTodayDueClick}
       >
-        <span className="material-icons text-sm mr-2">today</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
         <span>今日期限</span>
       </button>
       
@@ -51,7 +51,7 @@ export default function FilterList() {
         }`}
         onClick={handleHighPriorityClick}
       >
-        <span className="material-icons text-sm mr-2">priority_high</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="m8.5 14.5 5-5"></path><circle cx="10" cy="13" r="8"></circle></svg>
         <span>高優先度</span>
       </button>
       
