@@ -100,7 +100,7 @@ export default function TaskModal() {
     }
     
     // カテゴリIDの処理
-    const categoryId = data.categoryId ? parseInt(data.categoryId) : null;
+    const categoryId = data.categoryId && data.categoryId !== "none" ? parseInt(data.categoryId) : null;
     
     const taskData = {
       title: data.title,
@@ -266,7 +266,7 @@ export default function TaskModal() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">カテゴリなし</SelectItem>
+                        <SelectItem value="none">カテゴリなし</SelectItem>
                         {categories.map(category => (
                           <SelectItem key={category.id} value={category.id.toString()}>
                             {category.name}
