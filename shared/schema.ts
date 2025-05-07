@@ -41,12 +41,42 @@ export const insertTaskSchema = createInsertSchema(tasks).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-}).transform((data) => {
-  // dueDateがstring型で送信された場合はDate型に変換
-  if (typeof data.dueDate === 'string' && data.dueDate) {
-    data.dueDate = new Date(data.dueDate);
+}).superRefine((data, ctx) => {
+  // dueDate の値がある場合の変換と検証
+  if (data.dueDate !== undefined && data.dueDate !== null) {
+    // 文字列の場合は Date に変換
+    if (typeof data.dueDate === 'string') {
+      try {
+        const parsedDate = new Date(data.dueDate);
+        // 有効な日付かどうかチェック
+        if (isNaN(parsedDate.getTime())) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.invalid_date,
+            message: "無効な日付形式です",
+          });
+          data.dueDate = null;
+        } else {
+          data.dueDate = parsedDate;
+        }
+      } catch (error) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.invalid_date,
+          message: "日付の変換中にエラーが発生しました",
+        });
+        data.dueDate = null;
+      }
+    }
+    // Date オブジェクトでない場合 (文字列の変換が失敗した場合も含む)
+    else if (!(data.dueDate instanceof Date)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.invalid_type,
+        expected: "date",
+        received: typeof data.dueDate,
+        message: "日付型が必要です",
+      });
+      data.dueDate = null;
+    }
   }
-  return data;
 });
 
 // タイプ定義

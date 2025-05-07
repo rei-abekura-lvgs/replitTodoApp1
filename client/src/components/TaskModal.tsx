@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 // フォームスキーマを拡張
 const taskFormSchema = z.object({
@@ -25,6 +26,7 @@ const taskFormSchema = z.object({
 type TaskFormValues = z.infer<typeof taskFormSchema>;
 
 export default function TaskModal() {
+  const { toast } = useToast();
   const { 
     isTaskModalOpen, 
     setTaskModalOpen, 
@@ -102,15 +104,31 @@ export default function TaskModal() {
       let dueDate: Date | null = null;
       
       if (data.dueDate) {
-        if (data.dueTime) {
-          dueDate = new Date(`${data.dueDate}T${data.dueTime}`);
-        } else {
-          dueDate = new Date(`${data.dueDate}T00:00:00`);
-        }
-        
-        // 日付が有効かチェック
-        if (isNaN(dueDate.getTime())) {
-          throw new Error("無効な日付または時間の形式です");
+        try {
+          // 日付と時間を結合して処理（時間がない場合は00:00:00を使用）
+          const timeString = data.dueTime || "00:00:00";
+          const dateTimeString = `${data.dueDate}T${timeString}`;
+          
+          dueDate = new Date(dateTimeString);
+          
+          // 日付が有効かチェック
+          if (isNaN(dueDate.getTime())) {
+            toast({
+              title: "エラー",
+              description: "無効な日付または時間の形式です",
+              variant: "destructive",
+            });
+            setIsSubmitting(false);
+            return; // 早期リターンで処理を中断
+          }
+        } catch (dateError) {
+          toast({
+            title: "エラー",
+            description: "日付の処理中にエラーが発生しました",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return; // 早期リターンで処理を中断
         }
       }
       
@@ -121,27 +139,37 @@ export default function TaskModal() {
         title: data.title,
         description: data.description || "",
         isCompleted: selectedTask ? selectedTask.isCompleted : false,
-        // タイムゾーンを修正するために、新しいDateオブジェクトとしてdueDate（またはnull）を送信
-        dueDate: dueDate ? dueDate : null,
+        dueDate, // nullまたは有効なDateオブジェクト
         priority: parseInt(data.priority),
         categoryId,
       };
       
       // APIリクエスト用にデータを確認
       console.log("送信するタスクデータ:", taskData);
+
+      // サーバーに送信する前に日付をISO文字列に変換（必要であれば）
+      const serverTaskData = {
+        ...taskData,
+        dueDate: dueDate ? dueDate.toISOString() : null
+      };
       
       if (selectedTask) {
         // 更新の場合
-        await updateTask(selectedTask.id, taskData);
+        await updateTask(selectedTask.id, serverTaskData);
       } else {
         // 新規作成の場合
-        await createTask(taskData);
+        await createTask(serverTaskData);
       }
       
       // タスク保存成功後にモーダルを閉じる
       handleClose();
     } catch (error) {
       console.error("タスク保存エラー:", error);
+      toast({
+        title: "エラー",
+        description: "タスクの保存中にエラーが発生しました",
+        variant: "destructive",
+      });
     } finally {
       // 送信中状態を解除
       setIsSubmitting(false);

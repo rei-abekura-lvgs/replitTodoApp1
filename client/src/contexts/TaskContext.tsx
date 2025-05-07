@@ -160,7 +160,14 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   // タスク作成関数
   const createTask = async (task: Omit<Task, "id" | "createdAt" | "updatedAt">) => {
     try {
-      const response = await apiRequest('POST', '/api/tasks', task);
+      // サーバーに送信する前に日付が正しく処理されているか確認
+      const processedTask = {
+        ...task,
+        // 日付は文字列か日付オブジェクトとして送信可能
+        dueDate: task.dueDate ? task.dueDate : null
+      };
+      
+      const response = await apiRequest('POST', '/api/tasks', processedTask);
       const newTask = await response.json();
       
       // タスク一覧を更新
@@ -174,13 +181,26 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       });
       
       return newTask;
-    } catch (error) {
+    } catch (error: any) {
+      // API エラーをより詳細に取得
+      let errorMessage = "タスクの作成に失敗しました";
+      
+      if (error.message && typeof error.message === 'string') {
+        // エラーメッセージが存在する場合は表示
+        errorMessage = error.message;
+      } else if (error.errors && Array.isArray(error.errors)) {
+        // Zod バリデーションエラーの場合
+        errorMessage = error.errors.map((e: any) => e.message).join(", ");
+      }
+      
       toast({
         title: "エラー",
-        description: "タスクの作成に失敗しました",
+        description: errorMessage,
         variant: "destructive",
       });
-      console.error(error);
+      console.error("タスク作成エラー:", error);
+      // エラーを再スローして呼び出し元でもキャッチできるようにする
+      throw error;
     }
   };
   
