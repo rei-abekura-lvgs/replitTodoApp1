@@ -430,6 +430,30 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   // カテゴリ作成関数
   const createCategory = async (category: Omit<Category, "id">) => {
     try {
+      // デモモードの場合、操作をシミュレート
+      if (USE_DEMO_DATA) {
+        console.log('デモモード: カテゴリ作成をシミュレート', category);
+        
+        // 成功メッセージを表示
+        toast({
+          title: "デモモード",
+          description: "カテゴリを作成しました（デモモードではデータは永続化されません）",
+        });
+        
+        // 擬似的なカテゴリオブジェクトを返す
+        const newCategory = {
+          id: Math.floor(Math.random() * 1000) + 100,
+          ...category,
+          taskCount: 0
+        };
+        
+        // 次回取得時にデモデータを再取得するため、fetchCategoriesを呼び出す
+        await fetchCategories();
+        
+        return newCategory;
+      }
+      
+      // 通常モード（APIを使用）
       const response = await apiRequest('POST', '/api/categories', category);
       const newCategory = await response.json();
       
@@ -455,6 +479,28 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   // カテゴリ更新関数
   const updateCategory = async (id: number, category: Partial<Category>) => {
     try {
+      // デモモードの場合、操作をシミュレート
+      if (USE_DEMO_DATA) {
+        console.log('デモモード: カテゴリ更新をシミュレート', id, category);
+        
+        // 成功メッセージを表示
+        toast({
+          title: "デモモード",
+          description: "カテゴリを更新しました（デモモードではデータは永続化されません）",
+        });
+        
+        // 次回取得時にデモデータを再取得するため、fetchCategoriesを呼び出す
+        await fetchCategories();
+        
+        // 擬似的な更新済みカテゴリオブジェクトを返す
+        const existingCategory = demoCategories.find(c => c.id === id);
+        return {
+          ...existingCategory,
+          ...category
+        };
+      }
+      
+      // 通常モード（APIを使用）
       const response = await apiRequest('PUT', `/api/categories/${id}`, category);
       const updatedCategory = await response.json();
       
@@ -480,6 +526,29 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   // カテゴリ削除関数
   const deleteCategory = async (id: number) => {
     try {
+      // デモモードの場合、操作をシミュレート
+      if (USE_DEMO_DATA) {
+        console.log('デモモード: カテゴリ削除をシミュレート', id);
+        
+        // 成功メッセージを表示
+        toast({
+          title: "デモモード",
+          description: "カテゴリを削除しました（デモモードではデータは永続化されません）",
+        });
+        
+        // 現在選択中のカテゴリが削除された場合、選択を解除
+        if (selectedCategory === id) {
+          setSelectedCategory(null);
+        }
+        
+        // 次回取得時にデモデータを再取得するため、fetchCategoriesとfetchTasksを呼び出す
+        await fetchCategories();
+        await fetchTasks();
+        
+        return;
+      }
+      
+      // 通常モード（APIを使用）
       await apiRequest('DELETE', `/api/categories/${id}`);
       
       // カテゴリ一覧を更新
